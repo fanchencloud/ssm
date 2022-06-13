@@ -1,2 +1,4 @@
 # 排除Idea
 .idea
+# 排除target
+target
