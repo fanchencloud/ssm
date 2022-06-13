@@ -3,6 +3,8 @@ package cn.fanchencloud.ssm.entity;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.Date;
+
 /**
  * Version: V1.0    <br/>
  * Datetime:   2022/6/13 14:29   <br/>
@@ -27,4 +29,6 @@ public class User {
      * 用户年龄
      */
     private Integer age;
+
+    private Date birthday;
 }

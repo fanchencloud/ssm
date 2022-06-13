@@ -81,11 +81,11 @@
         <property name="basePackage" value="cn.fanchencloud.ssm.mapper"/>
     </bean>
 
-    <!--配置事务管理器-->
+    <!-- 配置事务管理器 -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <!--启用事务注解-->
+    <!-- 启用事务注解 -->
     <tx:annotation-driven/>
 </beans>
