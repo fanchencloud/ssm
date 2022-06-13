@@ -33,4 +33,13 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
     <!--  配置前端控制器 end -->
+
+    <!--  配置监听器，使得在项目启动的时候能加载Spring的配置文件 -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:applicationContext.xml</param-value>
+    </context-param>
 </web-app>
