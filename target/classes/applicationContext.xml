@@ -1,15 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
         https://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context
-        https://www.springframework.org/schema/context/spring-context.xsd">
+        https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
     <!-- 开启注解的扫描 -->
     <context:component-scan base-package="cn.fanchencloud.ssm">
         <!-- 配置哪些注解不扫描 -->
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
+    <!-- 引入 properties 文件 -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:db.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 配置 druid 连接池 start -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${driverName}"/>
+        <property name="url" value="${url}"/>
+        <property name="username" value="${username}"/>
+        <property name="password" value="${password}"/>
+        <!-- 连接池初始大小 -->
+        <property name="initialSize" value="5"/>
+        <!-- 最小空闲数 -->
+        <property name="minIdle" value="2"/>
+        <!-- 最大连接数 -->
+        <property name="maxActive" value="20"/>
+        <!-- 获取连接等待超时时间 -->
+        <property name="maxWait" value="60000"/>
+        <!-- 配置间隔多久启动一次验证，每隔多久执行一次验证，检测是否有效连接 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <!-- 配置一个连接在池中最小生存的时间 -->
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+        <!-- 用来验证数据库连接的查询语句 -->
+        <property name="validationQuery" value="select 1"/>
+        <!-- 应用向连接池申请连接，并且testOnBorrow为false时，连接池将会判断连接是否处于空闲状态，如果是，则验证这条连接是否可用 -->
+        <property name="testWhileIdle" value="true"/>
+        <!-- 如果为true，默认是false，应用向连接池申请连接时，连接池会判断这条连接是否是可用的 -->
+        <property name="testOnBorrow" value="false"/>
+        <!-- 如果为true（默认false），当应用使用完连接，连接池回收连接的时候会判断该连接是否还可用 -->
+        <property name="testOnReturn" value="false"/>
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <!-- 是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle -->
+        <property name="poolPreparedStatements" value="true"/>
+        <!--
+            要启用PSCache，必须配置大于0，当大于0时， poolPreparedStatements自动触发修改为true，
+            在Druid中，不会存在Oracle下PSCache占用内存过多的问题，因为Oracle的PSCache是默认开启的
+            可以把这个数值配置大一些，比如说100，不过要小于maxActive数量
+        -->
+        <property name="maxOpenPreparedStatements" value="20"/>
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20"/>
+
+        <!-- 连接池中的minIdle数量以内的连接，空闲时间超过minEvictableIdleTimeMillis，则会执行keepAlive操作 -->
+        <property name="keepAlive" value="true"/>
+
+        <!-- <property name="filters" value="stat,wall,log4j"/> -->
+    </bean>
+    <!-- 配置 druid 连接池 end -->
+
+    <!-- 配置 SqlSessionFactoryBean -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 配置数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 配置扫描实体类的目录 -->
+        <property name="typeAliasesPackage" value="cn.fanchencloud.ssm.entity"/>
+        <!-- 扫描sql配置文件:mapper需要的xml文件 -->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <!-- 配置 MyBatis 全局配置文件:mybatis-config.xml -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+    </bean>
+
+    <!-- 配置dao接口位置 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.fanchencloud.ssm.mapper"/>
+    </bean>
+
+    <!--配置事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--启用事务注解-->
+    <tx:annotation-driven/>
 </beans>
